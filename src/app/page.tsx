@@ -5,7 +5,7 @@ import * as mutations from '@/graphql/mutations';
 // 1. Add the queries as an import
 import * as queries from '@/graphql/queries';
 
-import config from '../amplifyconfiguration.json';
+import { amplifyConfig as config } from '@/config/amplify';
 
 const cookiesClient = generateServerClientUsingCookies({
   config,
