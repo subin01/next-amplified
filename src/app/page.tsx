@@ -1,18 +1,21 @@
-import { revalidatePath } from 'next/cache';
+'use client';
 import { DataStore } from '@aws-amplify/datastore';
 import { Todo } from '@/models';
+import { useState, useEffect } from 'react';
 
+export default function Home() {
+  const [todos, setTodos] = useState<Todo[]>([]);
 
+  useEffect(() => {
+    DataStore.query(Todo).then(setTodos);
+  }, []);
 
-async function createTodo(formData: FormData) {
-  'use server';
-  const name = formData.get('name')?.toString() ?? '';
-  await DataStore.save(new Todo({ name }));
-  revalidatePath('/');
-}
-
-export default async function Home() {
-  const todos = await DataStore.query(Todo);
+  const createTodo = async (formData: FormData) => {
+    const name = formData.get('name')?.toString() ?? '';
+    await DataStore.save(new Todo({ name }));
+    const updatedTodos = await DataStore.query(Todo);
+    setTodos(updatedTodos);
+  };
 
   return (
     <div

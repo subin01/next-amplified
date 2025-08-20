@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Amplify } from 'aws-amplify';
-import { amplifyConfig } from '@/config/amplify';
-
-Amplify.configure(amplifyConfig, { ssr: true });
+import AmplifyProvider from './amplify-provider';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <AmplifyProvider>
+          {children}
+        </AmplifyProvider>
       </body>
     </html>
   );
