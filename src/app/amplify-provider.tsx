@@ -1,6 +1,6 @@
 'use client';
 import { Amplify } from 'aws-amplify';
-import config from '../../amplifyconfiguration.json';
+import { amplifyConfig as config } from '@/config/amplify';
 
 Amplify.configure(config);
 
