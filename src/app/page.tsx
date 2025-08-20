@@ -1,40 +1,18 @@
-import { generateServerClientUsingCookies } from '@aws-amplify/adapter-nextjs/api';
-import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-import * as mutations from '@/graphql/mutations';
-// 1. Add the queries as an import
-import * as queries from '@/graphql/queries';
+import { DataStore } from '@aws-amplify/datastore';
+import { Todo } from '@/models';
 
-import { amplifyConfig as config } from '@/config/amplify';
 
-const cookiesClient = generateServerClientUsingCookies({
-  config,
-  cookies
-});
 
 async function createTodo(formData: FormData) {
   'use server';
-  const { data } = await cookiesClient.graphql({
-    query: mutations.createTodo,
-    variables: {
-      input: {
-        name: formData.get('name')?.toString() ?? ''
-      }
-    }
-  });
-
-  console.log('Created Todo: ', data?.createTodo);
-
+  const name = formData.get('name')?.toString() ?? '';
+  await DataStore.save(new Todo({ name }));
   revalidatePath('/');
 }
 
 export default async function Home() {
-  // 2. Fetch additional todos
-  const { data, errors } = await cookiesClient.graphql({
-    query: queries.listTodos
-  });
-
-  const todos = data.listTodos.items;
+  const todos = await DataStore.query(Todo);
 
   return (
     <div
@@ -50,8 +28,7 @@ export default async function Home() {
         <button type="submit">Add</button>
       </form>
 
-      {/* 3. Handle edge cases & zero state & error states*/}
-      {(!todos || todos.length === 0 || errors) && (
+      {(!todos || todos.length === 0) && (
         <div>
           <p>No todos, please add one.</p>
         </div>
